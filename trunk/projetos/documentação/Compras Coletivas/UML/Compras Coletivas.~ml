@@ -884,7 +884,7 @@
 <XPD:ATTR name="Left" type="integer">56</XPD:ATTR>
 <XPD:ATTR name="Top" type="integer">32</XPD:ATTR>
 <XPD:ATTR name="Width" type="integer">317</XPD:ATTR>
-<XPD:ATTR name="Height" type="integer">673</XPD:ATTR>
+<XPD:ATTR name="Height" type="integer">1157</XPD:ATTR>
 <XPD:REF name="Model">CSlwfv71zUuLhLhLA/b37AAA</XPD:REF>
 <XPD:OBJ name="NameLabel" type="LabelView" guid="vpKeTilGQkCfg/F6DG1pwAAA">
 <XPD:ATTR name="Text" type="string">Cliente</XPD:ATTR>
@@ -895,8 +895,8 @@
 <XPD:ATTR name="FillColor" type="string">$00B9FFFF</XPD:ATTR>
 <XPD:ATTR name="Left" type="integer">384</XPD:ATTR>
 <XPD:ATTR name="Top" type="integer">32</XPD:ATTR>
-<XPD:ATTR name="Width" type="integer">409</XPD:ATTR>
-<XPD:ATTR name="Height" type="integer">673</XPD:ATTR>
+<XPD:ATTR name="Width" type="integer">445</XPD:ATTR>
+<XPD:ATTR name="Height" type="integer">1157</XPD:ATTR>
 <XPD:REF name="Model">IKm7bK11nk262nZzvwKUKwAA</XPD:REF>
 <XPD:OBJ name="NameLabel" type="LabelView" guid="25p4sgGe9UqtFnwfoKOdJwAA">
 <XPD:ATTR name="Text" type="string">Sistema</XPD:ATTR>
