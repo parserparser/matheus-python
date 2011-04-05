@@ -20,6 +20,9 @@ urls = {
     'basketball': {
         'nba':'http://scores.espn.go.com/nba/scoreboard',
         'ncaa':'http://scores.espn.go.com/ncb/scoreboard',
+    },
+    'baseball': {
+        'mlb':'http://scores.espn.go.com/mlb/scoreboard'
     }
 }
 
@@ -48,6 +51,8 @@ class EspnParser(object):
         
         if sport == 'basketball':
             parser_scores = self.parse_basketball
+        elif sport == 'baseball':
+            parser_scores = self.parse_baseball
             
         
         for league in urls.get(sport, []):
@@ -58,7 +63,7 @@ class EspnParser(object):
             
             yield parser_scores(sport, league, date_formated, html)
         
-        #return scores    
+           
     
     
     def parse_basketball(self, sport, league, date, html):
@@ -131,7 +136,71 @@ class EspnParser(object):
     
     
     def parse_baseball(self, sport, league, date, html):    
-        pass
+        scores = []
+        regex = re.compile(r'id="([0-9]+)-gameDetails', re.IGNORECASE)
+        ids = re.findall(regex, html)
+        soup = Soup(html)
+        
+        for id in ids:
+            divs = soup('div', {'id' : id + '-gamebox'})
+            div = divs[0]
+            
+            a = div('a')
+            team1 = a[0].contents[0]
+            team2 = a[1].contents[0]
+            
+            st1 = div('li', {'id' : id + '-statusLine1'})
+            if len(st1[0].contents) == 0:
+                st1[0].contents.append('')
+           
+            status1 = st1[0].contents[0]
+            
+            st2 = div('span', {'id' : id + '-statusLine2Left'})
+            if len(st2[0].contents) == 0:
+                st2[0].contents.append('')
+            
+            status2 = st2[0].contents[0]
+            
+            status = str(status1).replace('&nbsp;', ' ') + ' ' + str(status2).replace('&nbsp;', ' ')
+            status = str.strip(status)
+            
+            
+            tables = div('table', {'class':'game-details'})
+            table = tables[0]
+                        
+            tbodys = table('tbody')
+            tbody = tbodys[0]
+            
+            trs = tbody('tr')
+            tr1 = trs[0]
+            tr2 = trs[1]
+            
+            tds = tr1('td')
+            if league == 'nba':
+                tds = tds[1:]
+                tds.pop(9)
+            elif league == 'ncaa':
+                tds = tds[4:]
+                tds.pop(9)
+                
+            points1 = [td.contents[0] for td in tds]
+            
+            tds = tr2('td')
+            if league == 'nba':
+                tds = tds[1:]
+                tds.pop(4)
+            elif league == 'ncaa':
+                tds = tds[4:]
+                tds.pop(2)
+            
+            points2 = [td.contents[0] for td in tds]
+            
+            points1 = self.format_points(points1)
+            points2 = self.format_points(points2)
+            
+            scores.append( BasicResult(sport, league, date, team1, team2,
+                           0, 0, int(points1[-1]), int(points2[-1]), status))
+        return scores
     
     
     
