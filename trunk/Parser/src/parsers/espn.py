@@ -104,112 +104,36 @@ class EspnParser(object):
             tbody = tbodys[0]
             
             trs = tbody('tr')
-            tr1 = trs[0]
-            tr2 = trs[1]
             
-            tds = tr1('td')
-            if league == 'nba':
-                tds = tds[3:]
-                tds.pop(4)
-            elif league == 'ncaa':
-                tds = tds[4:]
-                tds.pop(2)
-                
-            points1 = [td.contents[0] for td in tds]
-            
-            tds = tr2('td')
-            if league == 'nba':
-                tds = tds[3:]
-                tds.pop(4)
-            elif league == 'ncaa':
-                tds = tds[4:]
-                tds.pop(2)
-            
-            points2 = [td.contents[0] for td in tds]
-            
-            points1 = self.format_points(points1)
-            points2 = self.format_points(points2)
-            
-            scores.append( BasicResult(sport, league, date, team1, team2,
-                           0, 0, int(points1[-1]), int(points2[-1]), status))
-        return scores
-    
-    
-    def parse_baseball(self, sport, league, date, html):    
-        scores = []
-        regex = re.compile(r'id="([0-9]+)-gameDetails', re.IGNORECASE)
-        ids = re.findall(regex, html)
-        soup = Soup(html)
-        
-        for id in ids:
-            divs = soup('div', {'id' : id + '-gamebox'})
-            div = divs[0]
-            
-            a = div('a')
-            team1 = a[0].contents[0]
-            team2 = a[1].contents[0]
-            
-            st1 = div('li', {'id' : id + '-statusLine1'})
-            if len(st1[0].contents) == 0:
-                st1[0].contents.append('')
-           
-            status1 = st1[0].contents[0]
-            
-            st2 = div('span', {'id' : id + '-statusLine2Left'})
-            if len(st2[0].contents) == 0:
-                st2[0].contents.append('')
-            
-            status2 = st2[0].contents[0]
-            
-            status = str(status1).replace('&nbsp;', ' ') + ' ' + str(status2).replace('&nbsp;', ' ')
-            status = str.strip(status)
-            
-            
-            tables = div('table', {'class':'game-details'})
-            table = tables[0]
+            point1, point2 = self.get_points(trs, sport, league)
                         
-            tbodys = table('tbody')
-            tbody = tbodys[0]
-            
-            trs = tbody('tr')
-            tr1 = trs[0]
-            tr2 = trs[1]
-            
-            tds = tr1('td')
-            if league == 'nba':
-                tds = tds[1:]
-                tds.pop(9)
-            elif league == 'ncaa':
-                tds = tds[4:]
-                tds.pop(9)
-                
-            points1 = [td.contents[0] for td in tds]
-            
-            tds = tr2('td')
-            if league == 'nba':
-                tds = tds[1:]
-                tds.pop(4)
-            elif league == 'ncaa':
-                tds = tds[4:]
-                tds.pop(2)
-            
-            points2 = [td.contents[0] for td in tds]
-            
-            points1 = self.format_points(points1)
-            points2 = self.format_points(points2)
-            
             scores.append( BasicResult(sport, league, date, team1, team2,
-                           0, 0, int(points1[-1]), int(points2[-1]), status))
+                           0, 0, point1, point2, status))
         return scores
     
     
-    
-    def format_points(self, points):
-        for i in range(len(points)):
-            if points[i] == u'&nbsp;':
-                points[i] = ''
+    def get_points(self, trs, sport, league):
+        tds = []
+        tds.append(trs[0]('td'))
+        tds.append(trs[1]('td'))
+        point1 = point2 = None
         
-        return points
+        if sport == 'basketball':
+            point1, point2 = tds[0][-1].contents[0], tds[1][-1].contents[0]
+        
+        elif sport == 'baseball':
+            point1, point2 = tds[0][11].contents[0], tds[1][11].contents[0]
+        
+        pint1, point2 = self.format_point(point1), self.format_point(point2)
+        
+        return point1, point2
+        
+    
+    
+    def format_point(self, point):
+        if point == u'&nbsp;':
+            point = '0'
+        return int(point)
 
 
 if __name__ == '__main__':
