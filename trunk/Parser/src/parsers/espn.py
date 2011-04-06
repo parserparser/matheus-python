@@ -42,18 +42,12 @@ class EspnParser(object):
     
     def get_scores(self, sport, date=None):
         self.mech = self.get_mech()
-        scores = []
+        
         if not date:
             date = datetime.today()
         
         date_url = date.strftime("%Y%m%d")
         date_formated = date.strftime("%d/%m/%Y")
-        
-        if sport == 'basketball':
-            parser_scores = self.parse_basketball
-        elif sport == 'baseball':
-            parser_scores = self.parse_baseball
-            
         
         for league in urls.get(sport, []):
             url = urls[sport][league]
@@ -61,12 +55,11 @@ class EspnParser(object):
                 url = url + '?date=' + date_url
             html = self.mech.open(url).read()
             
-            yield parser_scores(sport, league, date_formated, html)
-        
+            yield self.parser_scores(sport, league, date_formated, html)
+    
            
     
-    
-    def parse_basketball(self, sport, league, date, html):
+    def parser_scores(self, sport, league, date, html):
         
         scores = []
         regex = re.compile(r'id="([0-9]+)-gameDetails', re.IGNORECASE)
@@ -81,21 +74,7 @@ class EspnParser(object):
             team1 = a[0].contents[0]
             team2 = a[1].contents[0]
             
-            st1 = div('li', {'id' : id + '-statusLine1'})
-            if len(st1[0].contents) == 0:
-                st1[0].contents.append('')
-           
-            status1 = st1[0].contents[0]
-            
-            st2 = div('span', {'id' : id + '-statusLine2Left'})
-            if len(st2[0].contents) == 0:
-                st2[0].contents.append('')
-            
-            status2 = st2[0].contents[0]
-            
-            status = str(status1).replace('&nbsp;', ' ') + ' ' + str(status2).replace('&nbsp;', ' ')
-            status = str.strip(status)
-            
+            status = self.get_status(div, sport, league)
             
             tables = div('table', {'class':'game-details'})
             table = tables[0]
@@ -112,6 +91,26 @@ class EspnParser(object):
         return scores
     
     
+    
+    def get_status(self, div, sport, league):
+        
+        st1 = div('li')
+        
+        if len(st1[0].contents) == 0:
+            st1[0].contents.append('')
+        
+        st2 = div('span')
+        
+        if len(st2[0].contents) == 0:
+            st2[0].contents.append('')
+        
+        status = st1[0].contents[0] + ' ' + st2[0].contents[0]
+        status = status.replace('&nbsp;', ' ')
+        
+        return str.strip(str(status))
+    
+    
+    
     def get_points(self, trs, sport, league):
         tds = []
         tds.append(trs[0]('td'))
@@ -124,7 +123,7 @@ class EspnParser(object):
         elif sport == 'baseball':
             point1, point2 = tds[0][11].contents[0], tds[1][11].contents[0]
         
-        pint1, point2 = self.format_point(point1), self.format_point(point2)
+        point1, point2 = self.format_point(point1), self.format_point(point2)
         
         return point1, point2
         

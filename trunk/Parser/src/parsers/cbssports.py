@@ -11,8 +11,10 @@ import re
 
 urls = {
     'basketball': {
-        'nba': 'http://scores.espn.go.com/nba/scoreboard/',
-        'ncaa': 'http://www.cbssports.com/collegebasketball/scoreboard/',
+        'ncaa':'http://www.cbssports.com/collegebasketball/scoreboard/',
+    },
+    'baseball': {
+        'mlb':'http://www.cbssports.com/mlb/scoreboard',
     }
 }
 
@@ -60,13 +62,23 @@ class CbsParser(object):
             
             tds1 = trs[1]('td')
             team1 = tds1[0].text
-            score1 = int(tds1[-1].text)
             
             tds2 = trs[2]('td')
             team2 = tds2[0].text
-            score2 = int(tds2[-1].text)
+            
+            score1, score2 = self.get_points(tds1, tds2, sport, league)
+            
             scores.append(self.make_score_from_info(sport, league, date, [team1, team2], ['0', '0'], [score1, score2], status))
         return scores
+    
+    
+    def get_points(self, tds1, tds2, sport, league):
+        if sport == 'baseball':
+            return int(tds1[10].text) , int(tds2[10].text)
+        else:
+            return int(tds1[-1].text), int(tds2[-1].text)
+    
+    
     
     def make_score_from_info(self, sport, league, date, teams, team_numbers, game_scores, status):
         def get_team_name(name):
@@ -101,7 +113,7 @@ class CbsParser(object):
         return score
         
     def get_date_from_string(self, text):
-        months = {'January': 1, 'February': 2, 'March': 3, 'Abril': 4, 'May': 5, 'June': 6,
+        months = {'January': 1, 'February': 2, 'March': 3, 'April': 4, 'May': 5, 'June': 6,
                   'July': 7, 'August': 8, 'September': 9, 'October': 10, 'November': 11, 'December': 12}
         date_parts = text.split()
         
@@ -112,17 +124,17 @@ class CbsParser(object):
         return date
 
 def get_results():
-    from parsers.donbest import send
+    #from parsers.donbest import send
     parser = CbsParser()
     for results in parser.get_scores('basketball'):
         if not results:
             continue
         data = repr([v.as_dict() for v in results])
-        send(data)
+        #send(data)
 
 if __name__ == '__main__':
     import sys
-    from parsers.donbest import send
+    #from parsers.donbest import send
     parser = CbsParser()
     date = None
     if len(sys.argv) >= 2:
@@ -136,5 +148,5 @@ if __name__ == '__main__':
             continue
         if '-s' in sys.argv:
             data = repr([v.as_dict() for v in scores])
-            send(data)
+            #send(data)
 
