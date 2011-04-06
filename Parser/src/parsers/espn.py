@@ -67,7 +67,7 @@ class EspnParser(object):
         soup = Soup(html)
         
         for id in ids:
-            divs = soup('div', {'id' : id + '-gamebox'})
+            divs = soup('div', {'id':id+'-gamebox'})
             div = divs[0]
             
             a = div('a')
