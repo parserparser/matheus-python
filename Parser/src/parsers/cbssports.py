@@ -56,7 +56,7 @@ class CbsParser(object):
             headers = trs[0]('td')
             status = headers[0].text
             last = headers[-1].text
-            if last != 'T':
+            if (sport == 'basketball') & (last != 'T'):
                 # no scores yet, skip this one
                 continue
             
@@ -126,7 +126,7 @@ class CbsParser(object):
 def get_results():
     #from parsers.donbest import send
     parser = CbsParser()
-    for results in parser.get_scores('basketball'):
+    for results in parser.get_scores('baseball'):
         if not results:
             continue
         data = repr([v.as_dict() for v in results])
@@ -139,7 +139,7 @@ if __name__ == '__main__':
     date = None
     if len(sys.argv) >= 2:
         date = sys.argv[-1]
-    for scores in parser.get_scores('basketball', date):
+    for scores in parser.get_scores('baseball', date):
         print '-' * 100
         for score in scores:
             print score
