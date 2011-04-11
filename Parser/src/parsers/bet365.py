@@ -12,8 +12,8 @@ import datetime
 
 sports_links = {
     'basketball':{
-        'nba':'',
-        'ncaa':''
+        'nba':'http://www.bet365.com/home/mainpage.asp?rn=32517127837'
+        #'ncaa':''
     },
     'baseball':{
         'mlb':''
@@ -21,12 +21,12 @@ sports_links = {
 }
 
 sports_preloading_urls = {
-    'basketball':['', ''],
-    'baseball':['', '']
+    'basketball':['http://www.bet365.com', 'http://www.bet365.com/home/default.asp?']
+    #'baseball':['', '']
 }
 
 
-class bet365Parser:
+class Bet365Parser:
     
     def get_lines(self, sport):
         if (sport not in sports_links.keys()):
@@ -36,7 +36,7 @@ class bet365Parser:
         leagues = sports_links[sport].keys()
         for league in leagues:
             url = leagues_dict[league]
-            yield self.get_lines_for_league(url, sport, league)
+            self.get_lines_for_league(url, sport, league)
     
     
     
@@ -46,12 +46,17 @@ class bet365Parser:
 
         for preloading_url in sports_preloading_urls[sport]:
             br.open(preloading_url)
-
+        
         br.open(url)
-
         html = br.response().read()
+        
+        
         soup = BeautifulSoup.BeautifulSoup(html)
         
-        lines = []
+        frame = soup('iframe')
+        print frame
         
-        #TODO: Iterar elementos HTML e preencher lines
+        
+if __name__ == '__main__':
+    bet355 = Bet365Parser()
+    bet355.get_lines('basketball')
