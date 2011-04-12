@@ -15,13 +15,13 @@ from util import basics
 
 sports = {
         'basketball':{
-            'nba':''
+            'NBA - Second Half':'https://www.secureserver365.com/BOSSWagering/Sportsbook/InternetWagering2010-03a2/IBLines/Lines8.asp?SPORTTYPES=2&DUMMY=10&SSC=3940'
             #'ncaa':'http://'
         },
         'baseball':{
             'mlb':'https://www.secureserver365.com/BOSSWagering/Sportsbook/InternetWagering2010-03a2/IBLines/Lines8.asp?SPORTTYPES=15&DUMMY=10&SSC=3940'
         },
-        'Soccer':{
+        'soccer':{
             'Soccer - English Premier League': 'https://www.secureserver365.com/BOSSWagering/Sportsbook/InternetWagering2010-03a2/IBLines/Lines8.asp?SPORTTYPES=15&DUMMY=10&SSC=3940'
         }
 }
@@ -113,7 +113,7 @@ class LegendsParser:
         for i in range(0, len(divs), 2):
             
             title = divs[i]('strong')[0].contents[2]
-            print title.upper() + ' - ' + league.upper()
+            #print title.upper() + ' - ' + league.upper()
             if title.upper() == league.upper(): # Substituir por League
                 div = divs[i+1]
                 break
@@ -137,7 +137,12 @@ class LegendsParser:
             money2 = tds2[1].contents[0]
             spread2 = tds2[2].contents[0]
             total2 = tds2[3].contents[0]
-        
+            
+            basics.BasicLine('Legends', sport, league, 'full overtime', 'Money Line', 
+                             team1, team2, 0, 0, odds, 
+                             side, spread, overunder, max_bet, min_bet, 
+                             commission, date, event_time, 
+                             locked=False, expiration="", extra_data="")
         '''
         
             INSTACIAR OS OBJETOS E RETORNAR
@@ -147,5 +152,5 @@ class LegendsParser:
 if __name__ == '__main__':
     
     legends = LegendsParser()
-    legends.get_scores('Soccer')
+    legends.get_scores('basketball')
     
