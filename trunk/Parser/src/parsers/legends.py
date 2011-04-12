@@ -14,6 +14,7 @@ import datetime
 import re
 
 from util import basics
+import util.equity as equity
 
 
 sports = {
@@ -134,7 +135,7 @@ class LegendsParser:
             money1 = tds1[1].contents[0]
             spread_odds1 = tds1[2].contents[0]
             spread1 = spread_odds1.split(' ')[0].replace('½', 'EEEE')
-            odd1 = spread_odds1.split(' ')[1]
+            odd1 = equity.to_decimal(spread_odds1.split(' ')[1])
             total1 = tds1[3].contents[0]
             
             print team1 + ' | ' + money1 + ' | ' + spread1 + ' | ' + odd1 + ' | ' + total1
@@ -144,7 +145,7 @@ class LegendsParser:
             money2 = tds2[1].contents[0]
             spread_odds2 = tds2[2].contents[0]
             spread2 = spread_odds1.split(' ')[0]
-            odd2 = spread_odds1.split(' ')[1]
+            odd2 = equity.to_decimal(spread_odds1.split(' ')[1])
             total2 = tds2[3].contents[0]
             
             '''
