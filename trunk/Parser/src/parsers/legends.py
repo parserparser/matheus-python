@@ -1,3 +1,6 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
 '''
 Created on 08/04/2011
 
@@ -114,7 +117,7 @@ class LegendsParser:
             
             title = divs[i]('strong')[0].contents[2]
             #print title.upper() + ' - ' + league.upper()
-            if title.upper() == league.upper(): # Substituir por League
+            if title.upper() == league.upper(): 
                 div = divs[i+1]
                 break
         
@@ -129,25 +132,30 @@ class LegendsParser:
             tds1 = trs[i+1]('td')
             team1 =  tds1[0].contents[0] 
             money1 = tds1[1].contents[0]
-            spread1 = tds1[2].contents[0]
+            spread_odds1 = tds1[2].contents[0]
+            spread1 = spread_odds1.split(' ')[0].replace('½', 'EEEE')
+            odd1 = spread_odds1.split(' ')[1]
             total1 = tds1[3].contents[0]
+            
+            print team1 + ' | ' + money1 + ' | ' + spread1 + ' | ' + odd1 + ' | ' + total1
             
             tds2 = trs[i+2]('td')
             team2 =  tds2[0].contents[0] 
             money2 = tds2[1].contents[0]
-            spread2 = tds2[2].contents[0]
+            spread_odds2 = tds2[2].contents[0]
+            spread2 = spread_odds1.split(' ')[0]
+            odd2 = spread_odds1.split(' ')[1]
             total2 = tds2[3].contents[0]
             
-            basics.BasicLine('Legends', sport, league, 'full overtime', 'Money Line', 
-                             team1, team2, 0, 0, odds, 
-                             side, spread, overunder, max_bet, min_bet, 
-                             commission, date, event_time, 
-                             locked=False, expiration="", extra_data="")
+            '''
+            line = basics.BasicLine('Legends', sport, league, 'full overtime', 'Money Line', 
+                                     team1, team2, 0, 0, [odd1, odd2], 
+                                     side, spread, overunder, 1000.0, 0.5, 
+                                     0, date, event_time, 
+                                     locked=False, expiration="", extra_data="")
         '''
-        
-            INSTACIAR OS OBJETOS E RETORNAR
-         
-        '''
+
+
 
 if __name__ == '__main__':
     
