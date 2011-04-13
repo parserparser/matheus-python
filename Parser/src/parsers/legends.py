@@ -40,8 +40,8 @@ class LegendsParser:
         browser = mechanize.Browser()
         
         # Cookie Jar
-        cj = cookielib.LWPCookieJar()
-        browser.set_cookiejar(cj)
+        #cj = cookielib.LWPCookieJar()
+        #browser.set_cookiejar(cj)
         
         # Browser options
         browser.set_handle_equiv(True)
@@ -128,25 +128,24 @@ class LegendsParser:
         trs = div('tr', {'class':'RCB'})
         
         for i in range(0, len(trs), 3):
-            date = trs[i]('strong')[0].contents[0]
-            
+            date = trs[i]('strong')[0].contents[0] ''' CORRIGIR A DATA!! '''
+            print date
             tds1 = trs[i+1]('td')
             team1 =  tds1[0].contents[0].split('. ')[1]
-            number_team1 = tds1[0].contents[0].split('. ')[0]
+            team1_number = tds1[0].contents[0].split('. ')[0]
             
             try:
                 money1 = int(tds1[1]('a')[0].contents)
             except:
                 money1 = 1
             
-            print money1
+            
             spread_odds1 = tds1[2]('a')[0].contents[0]
             spread1 = spread_odds1.split(' ')[0].replace(u'½', '.5')
-            odds1 = equity.to_decimal(money1)
-            
+            odds = equity.to_decimal(int(spread_odds1.split(' ')[1]))
             total1 = tds1[3]('a')[0].contents[0].replace(u'½', '.5')
             
-            print team1 + ' | ' + str(money1) + ' | ' + spread1 + ' | ' + str(odds1) + ' | ' + total1
+            print team1 + ' | ' + str(money1) + ' | ' + spread1 + ' | ' + str(odds) + ' | ' + total1
             
             '''
             tds2 = trs[i+2]('td')
@@ -160,9 +159,9 @@ class LegendsParser:
             '''
             
             '''
-            line = basics.BasicLine('Legends', sport, league, 'full overtime', 'Money Line', 
-                                     team1, team2, 0, 0, [odd1, odd2], 
-                                     side, spread, overunder, 1000.0, 0.5, 
+            line1 = basics.BasicLine('Legends', sport, league, 'full overtime', 'spread', 
+                                     team1, team2, team1_number, team2_number, odds, 
+                                     'over', spread, overunder, 1000.0, 0.5, 
                                      0, date, event_time, 
                                      locked=False, expiration="", extra_data="")
             '''
