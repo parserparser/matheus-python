@@ -19,7 +19,7 @@ import util.equity as equity
 
 sports = {
         'basketball':{
-            'NBA - Second Half':'https://www.secureserver365.com/BOSSWagering/Sportsbook/InternetWagering2010-03a2/IBLines/Lines8.asp?SPORTTYPES=2&DUMMY=10&SSC=3940'
+            'NBA':'https://www.secureserver365.com/BOSSWagering/Sportsbook/InternetWagering2010-03a2/IBLines/Lines8.asp?SPORTTYPES=2&DUMMY=10&SSC=3940'
             #'ncaa':'http://'
         },
         'baseball':{
@@ -116,8 +116,8 @@ class LegendsParser:
         
         for i in range(0, len(divs), 2):
             
-            title = divs[i]('strong')[0].contents[2]
-            #print title.upper() + ' - ' + league.upper()
+            title = str(divs[i]('strong')[0].contents[2]).strip()
+            #print '\'' + title.upper() + '\' - \'' + league.upper() + '\''
             if title.upper() == league.upper(): 
                 div = divs[i+1]
                 break
@@ -131,22 +131,33 @@ class LegendsParser:
             date = trs[i]('strong')[0].contents[0]
             
             tds1 = trs[i+1]('td')
-            team1 =  tds1[0].contents[0] 
-            money1 = tds1[1].contents[0]
-            spread_odds1 = tds1[2].contents[0]
-            spread1 = spread_odds1.split(' ')[0].replace('½', 'EEEE')
-            odd1 = equity.to_decimal(spread_odds1.split(' ')[1])
-            total1 = tds1[3].contents[0]
+            team1 =  tds1[0].contents[0].split('. ')[1]
+            number_team1 = tds1[0].contents[0].split('. ')[0]
             
-            print team1 + ' | ' + money1 + ' | ' + spread1 + ' | ' + odd1 + ' | ' + total1
+            try:
+                money1 = int(tds1[1]('a')[0].contents)
+            except:
+                money1 = 1
             
+            print money1
+            spread_odds1 = tds1[2]('a')[0].contents[0]
+            spread1 = spread_odds1.split(' ')[0].replace(u'½', '.5')
+            odds1 = equity.to_decimal(money1)
+            
+            total1 = tds1[3]('a')[0].contents[0].replace(u'½', '.5')
+            
+            print team1 + ' | ' + str(money1) + ' | ' + spread1 + ' | ' + str(odds1) + ' | ' + total1
+            
+            '''
             tds2 = trs[i+2]('td')
-            team2 =  tds2[0].contents[0] 
+            team2 =  tds2[0].contents[0]
             money2 = tds2[1].contents[0]
-            spread_odds2 = tds2[2].contents[0]
-            spread2 = spread_odds1.split(' ')[0]
-            odd2 = equity.to_decimal(spread_odds1.split(' ')[1])
+            spread_odds2 = tds2[2]('a')[0].contents[0]
+            spread2 = spread_odds1.split(' ')[0].replace(u'½', '')
+            odd2 = int(spread_odds1.split(' ')[1])
+            odd2_decimal = equity.to_decimal(odd2)
             total2 = tds2[3].contents[0]
+            '''
             
             '''
             line = basics.BasicLine('Legends', sport, league, 'full overtime', 'Money Line', 
@@ -154,7 +165,7 @@ class LegendsParser:
                                      side, spread, overunder, 1000.0, 0.5, 
                                      0, date, event_time, 
                                      locked=False, expiration="", extra_data="")
-        '''
+            '''
 
 
 
