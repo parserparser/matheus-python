@@ -35,6 +35,12 @@ sports = {
 
 class LegendsParser:
     
+    browser = None
+    
+    def __init__(self):
+        self.browser = self.get_browser()
+    
+    
     def get_browser(self):
         # Browser
         browser = mechanize.Browser()
@@ -56,47 +62,41 @@ class LegendsParser:
         # User-Agent (this is cheating, ok?)
         browser.addheaders = [('User-agent', 'Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.0.1) Gecko/2008071615 Fedora/3.0.1-1.fc9 Firefox/3.0.1')]
         
-        browser = self.login(browser)
-        
         return browser
     
-    def login(self, browser):
+    def login(self):
+        
         # The site we will navigate into, handling it's session
-        browser.open('http://www.legends.com')
+        self.browser.open('http://www.legends.com')
         
         
-        browser.select_form(nr=0)
+        self.browser.select_form(nr=0)
         
         # User credentials
-        browser.form['txtcode'] = 'zz48649'
-        browser.form['txtpassword'] = 'fuckme11'
+        self.browser.form['txtcode'] = 'zz48649'
+        self.browser.form['txtpassword'] = 'fuckme11'
         
         # Login
-        browser.submit()
+        self.browser.submit()
         
-        browser.select_form(nr=0)
-        browser.submit()
+        self.browser.select_form(nr=0)
+        self.browser.submit()
         
-        browser.select_form(nr=0)
-        browser.submit()
-        
-        return browser
+        self.browser.select_form(nr=0)
+        self.browser.submit()
     
-    
+        
     
     def get_scores(self, sport):
         if sport not in sports.keys():
             return 
-        
-        browser = self.get_browser()
-        
         
         leagues_dict = sports[sport]
         leagues = leagues_dict.keys()
         
         for league in leagues:
             url = leagues_dict[league]
-            html = browser.open(url).read()
+            html = self.browser.open(url).read()
             self.parser_scores(sport, league, html)
     
     
@@ -180,5 +180,6 @@ class LegendsParser:
 if __name__ == '__main__':
     
     legends = LegendsParser()
+    legends.login()
     legends.get_scores('basketball')
     
