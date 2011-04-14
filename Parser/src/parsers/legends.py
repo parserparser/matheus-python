@@ -10,7 +10,7 @@ Created on 08/04/2011
 import mechanize
 import cookielib
 from BeautifulSoup import BeautifulSoup as Soup
-import datetime
+from datetime import datetime
 import re
 
 from util import basics
@@ -128,8 +128,10 @@ class LegendsParser:
         trs = div('tr', {'class':'RCB'})
         
         for i in range(0, len(trs), 3):
-            date = trs[i]('strong')[0].contents[0] ''' CORRIGIR A DATA!! '''
-            print date
+            date_str = trs[i]('strong')[0].contents[0]
+            date_str = datetime.now().strftime('%Y-%m-%d ') + date_str[-8:] 
+            date = datetime.strptime(date_str, '%Y-%m-%d %I:%M %p')
+            
             tds1 = trs[i+1]('td')
             team1 =  tds1[0].contents[0].split('. ')[1]
             team1_number = tds1[0].contents[0].split('. ')[0]
@@ -141,30 +143,37 @@ class LegendsParser:
             
             
             spread_odds1 = tds1[2]('a')[0].contents[0]
-            spread1 = spread_odds1.split(' ')[0].replace(u'½', '.5')
+            spread1 = float(spread_odds1.split(' ')[0].replace(u'½', '.5'))
             odds = equity.to_decimal(int(spread_odds1.split(' ')[1]))
             total1 = tds1[3]('a')[0].contents[0].replace(u'½', '.5')
+            overunder = float(total1.split()[1])
+            #print team1 + ' | ' + str(money1) + ' | ' + spread1 + ' | ' + str(odds) + ' | ' + total1
             
-            print team1 + ' | ' + str(money1) + ' | ' + spread1 + ' | ' + str(odds) + ' | ' + total1
+            ###########################################
+            ###########################################
             
-            '''
+            
             tds2 = trs[i+2]('td')
-            team2 =  tds2[0].contents[0]
-            money2 = tds2[1].contents[0]
-            spread_odds2 = tds2[2]('a')[0].contents[0]
-            spread2 = spread_odds1.split(' ')[0].replace(u'½', '')
-            odd2 = int(spread_odds1.split(' ')[1])
-            odd2_decimal = equity.to_decimal(odd2)
-            total2 = tds2[3].contents[0]
-            '''
+            team2 =  tds2[0].contents[0].split('. ')[1]
+            team2_number = tds2[0].contents[0].split('. ')[0]
             
-            '''
+            try:
+                money2 = int(tds2[1]('a')[0].contents)
+            except:
+                money2 = 1
+            
+            spread_odds2 = tds2[2]('a')[0].contents[0]
+            spread2 = spread_odds2.split(' ')[0].replace(u'½', '.5')
+            total2 = tds2[3]('a')[0].contents[0].replace(u'½', '.5')
+            
+            #print team2 + ' | ' + str(money2) + ' | ' + spread2 + ' | ' + str(odds) + ' | ' + total2
+            
             line1 = basics.BasicLine('Legends', sport, league, 'full overtime', 'spread', 
                                      team1, team2, team1_number, team2_number, odds, 
-                                     'over', spread, overunder, 1000.0, 0.5, 
-                                     0, date, event_time, 
-                                     locked=False, expiration="", extra_data="")
-            '''
+                                     'over', spread1, overunder, 1000.0, 0.5, 
+                                     0, date.strftime('%Y-%m-%d'), date.strftime('%I:%M %p')) 
+            
+            print line1
 
 
 
