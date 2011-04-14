@@ -13,20 +13,18 @@ from BeautifulSoup import BeautifulSoup as Soup
 from datetime import datetime
 import re
 
-from util import basics
+from util import basics, parser_exception
 import util.equity as equity
+
 
 
 sports = {
         'basketball':{
-            'NBA':'https://www.secureserver365.com/BOSSWagering/Sportsbook/InternetWagering2010-03a2/IBLines/Lines8.asp?SPORTTYPES=2&DUMMY=10&SSC=3940'
-            #'ncaa':'http://'
+            'nba':'https://www.secureserver365.com/BOSSWagering/Sportsbook/InternetWagering2010-03a2/IBLines/Lines8.asp?SPORTTYPES=2&DUMMY=10&SSC=3940',
+            'ncaa':'https://www.secureserver365.com/BOSSWagering/Sportsbook/InternetWagering2010-03a2/IBLines/Lines8.asp?SPORTTYPES=2&DUMMY=10&SSC=3940'
         },
         'baseball':{
             'mlb':'https://www.secureserver365.com/BOSSWagering/Sportsbook/InternetWagering2010-03a2/IBLines/Lines8.asp?SPORTTYPES=15&DUMMY=10&SSC=3940'
-        },
-        'soccer':{
-            'Soccer - English Premier League': 'https://www.secureserver365.com/BOSSWagering/Sportsbook/InternetWagering2010-03a2/IBLines/Lines8.asp?SPORTTYPES=15&DUMMY=10&SSC=3940'
         }
 }
 
@@ -36,10 +34,11 @@ sports = {
 class LegendsParser:
     
     browser = None
+    logged = None
     
     def __init__(self):
         self.browser = self.get_browser()
-    
+        self.logged = False
     
     def get_browser(self):
         # Browser
@@ -66,28 +65,36 @@ class LegendsParser:
     
     def login(self):
         
-        # The site we will navigate into, handling it's session
-        self.browser.open('http://www.legends.com')
-        
-        
-        self.browser.select_form(nr=0)
-        
-        # User credentials
-        self.browser.form['txtcode'] = 'zz48649'
-        self.browser.form['txtpassword'] = 'fuckme11'
-        
-        # Login
-        self.browser.submit()
-        
-        self.browser.select_form(nr=0)
-        self.browser.submit()
-        
-        self.browser.select_form(nr=0)
-        self.browser.submit()
+        try:
+            # The site we will navigate into, handling it's session
+            self.browser.open('http://www.legends.com')
+            
+            
+            self.browser.select_form(nr=0)
+            
+            # User credentials
+            self.browser.form['txtcode'] = 'zz48649'
+            self.browser.form['txtpassword'] = 'fuckme11'
+            
+            # Login
+            self.browser.submit()
+            
+            self.browser.select_form(nr=0)
+            self.browser.submit()
+            
+            self.browser.select_form(nr=0)
+            self.browser.submit()
+            self.logged = True
+        except Exception:
+            raise parser_exception.LoginError()
     
-        
     
-    def get_scores(self, sport):
+    
+    def get_lines(self, sport):
+        
+        if(not self.logged):
+            self.login()
+        
         if sport not in sports.keys():
             return 
         
@@ -103,8 +110,7 @@ class LegendsParser:
     
     def parser_scores(self, sport, league, html):
         
-        #regex = re.compile(r'id=\'(header[0-9]+)\'', re.IGNORECASE)
-        #ids = re.findall(regex, html)
+        all_lines = []
         
         soup = Soup(html)
         form = soup.findAll('form', {'id':'frmLines', 'name':'frmLines'})
@@ -112,7 +118,7 @@ class LegendsParser:
         div = None
         
         if(len(divs) == 0):
-            return
+            return all_lines
         
         for i in range(0, len(divs), 2):
             
@@ -123,7 +129,7 @@ class LegendsParser:
                 break
         
         if not div:
-            return
+            return all_lines
         
         trs = div('tr', {'class':'RCB'})
         
@@ -166,14 +172,25 @@ class LegendsParser:
             spread2 = spread_odds2.split(' ')[0].replace(u'½', '.5')
             total2 = tds2[3]('a')[0].contents[0].replace(u'½', '.5')
             
+            
             #print team2 + ' | ' + str(money2) + ' | ' + spread2 + ' | ' + str(odds) + ' | ' + total2
+            
+            
             
             line1 = basics.BasicLine('Legends', sport, league, 'full overtime', 'spread', 
                                      team1, team2, team1_number, team2_number, odds, 
                                      'over', spread1, overunder, 1000.0, 0.5, 
                                      0, date.strftime('%Y-%m-%d'), date.strftime('%I:%M %p')) 
             
-            print line1
+            
+            line2 = basics.BasicLine('Legends', sport, league, 'full overtime', 'overunder', 
+                                     team1, team2, team1_number, team2_number, odds, 
+                                     'over', spread1, overunder, 1000.0, 0.5, 
+                                     0, date.strftime('%Y-%m-%d'), date.strftime('%I:%M %p')) 
+                        
+            all_lines.extend([line1, line2])
+            
+            print all_lines
 
 
 
@@ -181,5 +198,5 @@ if __name__ == '__main__':
     
     legends = LegendsParser()
     legends.login()
-    legends.get_scores('basketball')
+    legends.get_lines('basketball')
     
