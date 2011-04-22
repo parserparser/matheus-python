@@ -104,7 +104,7 @@ class LegendsParser:
         for league in leagues:
             url = leagues_dict[league]
             html = self.browser.open(url).read()
-            self.parser_scores(sport, league, html)
+            yield self.parser_scores(sport, league, html)
     
     
     
@@ -138,6 +138,9 @@ class LegendsParser:
             date_str = datetime.now().strftime('%Y-%m-%d ') + date_str[-8:] 
             date = datetime.strptime(date_str, '%Y-%m-%d %I:%M %p')
             
+            
+            # Getting frist team
+            
             tds1 = trs[i+1]('td')
             team1 =  tds1[0].contents[0].split('. ')[1]
             team1_number = tds1[0].contents[0].split('. ')[0]
@@ -153,11 +156,9 @@ class LegendsParser:
             odds = equity.to_decimal(int(spread_odds1.split(' ')[1]))
             total1 = tds1[3]('a')[0].contents[0].replace(u'½', '.5')
             overunder = float(total1.split()[1])
-            #print team1 + ' | ' + str(money1) + ' | ' + spread1 + ' | ' + str(odds) + ' | ' + total1
             
-            ###########################################
-            ###########################################
             
+            # Getting second team
             
             tds2 = trs[i+2]('td')
             team2 =  tds2[0].contents[0].split('. ')[1]
@@ -173,10 +174,7 @@ class LegendsParser:
             total2 = tds2[3]('a')[0].contents[0].replace(u'½', '.5')
             
             
-            #print team2 + ' | ' + str(money2) + ' | ' + spread2 + ' | ' + str(odds) + ' | ' + total2
-            
-            
-            
+                        
             line1 = basics.BasicLine('Legends', sport, league, 'full overtime', 'spread', 
                                      team1, team2, team1_number, team2_number, odds, 
                                      'over', spread1, overunder, 1000.0, 0.5, 
@@ -190,7 +188,7 @@ class LegendsParser:
                         
             all_lines.extend([line1, line2])
             
-            print all_lines
+            return all_lines
 
 
 
@@ -198,5 +196,7 @@ if __name__ == '__main__':
     
     legends = LegendsParser()
     legends.login()
-    legends.get_lines('basketball')
+    
+    for lines in legends.get_lines('basketball'):
+        print lines
     
