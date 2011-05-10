@@ -198,7 +198,7 @@ class SportsbookBettor(object):
         s.select_frame("name=myaccount")
         s.select_frame("name=navBarIframe")
         acc_soup=BeautifulSoup(s.get_html_source())
-        return get_bet_history_info(acc_soup)
+        return self.get_bet_history_info(acc_soup)
     
     def get_wagered(self):
         wagered=0
@@ -319,6 +319,6 @@ class SportsbookBettor(object):
 
 if __name__ == '__main__':
     bettor=SportsbookBettor()
-    #bettor.login('arvsports','hellfire')
-    #line = BasicLine('sportsbook', 'basketball', 'nba', 0, 'overunder', 'Indiana Pacers', 'Milwaukee Bucks', '0', '0', 1.9, 'under', 0, 180, 100.0, 0.0, 0, '10-03-2011', '19:05', extra_data={'id':'Bskt-Blaze-Hawks-031211TLU'})
-    #bettor.bet(line,0)
+    bettor.login('arvsports','hellfire')
+    line = BasicLine('sportsbook', 'basketball', 'nba', 0, 'overunder', 'Indiana Pacers', 'Milwaukee Bucks', '0', '0', 1.9, 'under', 0, 180, 100.0, 0.0, 0, '10-03-2011', '19:05', extra_data={'id':'Bskt-Blaze-Hawks-031211TLU'})
+    bettor.bet(line,0)
