@@ -20,11 +20,12 @@ import util.equity as equity
 
 sports = {
         'basketball':{
-            'nba':'https://www.secureserver365.com/BOSSWagering/Sportsbook/InternetWagering2010-03a2/IBLines/Lines8.asp?SPORTTYPES=2&DUMMY=10&SSC=3940',
-            'ncaa':'https://www.secureserver365.com/BOSSWagering/Sportsbook/InternetWagering2010-03a2/IBLines/Lines8.asp?SPORTTYPES=2&DUMMY=10&SSC=3940'
+            'NBA':'https://www.secureserver365.com/BOSSWagering/Sportsbook/InternetWagering2010-03a2/IBLines/Lines8.asp?SPORTTYPES=2&DUMMY=10&SSC=3940',
+            'NCAA':'https://www.secureserver365.com/BOSSWagering/Sportsbook/InternetWagering2010-03a2/IBLines/Lines8.asp?SPORTTYPES=2&DUMMY=10&SSC=3940'
         },
         'baseball':{
-            'mlb':'https://www.secureserver365.com/BOSSWagering/Sportsbook/InternetWagering2010-03a2/IBLines/Lines8.asp?SPORTTYPES=15&DUMMY=10&SSC=3940'
+            'MLB - National League':'https://www.secureserver365.com/BOSSWagering/Sportsbook/InternetWagering2010-03a2/IBLines/Lines8.asp?SPORTTYPES=15&DUMMY=10&SSC=3940',
+            'MLB - American League':'https://www.secureserver365.com/BOSSWagering/Sportsbook/InternetWagering2010-03a2/IBLines/Lines8.asp?SPORTTYPES=15&DUMMY=10&SSC=3940'
         }
 }
 
@@ -123,7 +124,6 @@ class LegendsParser:
         for i in range(0, len(divs), 2):
             
             title = str(divs[i]('strong')[0].contents[2]).strip()
-            #print '\'' + title.upper() + '\' - \'' + league.upper() + '\''
             if title.upper() == league.upper(): 
                 div = divs[i+1]
                 break
@@ -135,7 +135,7 @@ class LegendsParser:
         
         for i in range(0, len(trs), 3):
             date_str = trs[i]('strong')[0].contents[0]
-            date_str = datetime.now().strftime('%Y-%m-%d ') + date_str[-8:] 
+            date_str = datetime.now().strftime('%Y-%m-%d ') + date_str[-8:]
             date = datetime.strptime(date_str, '%Y-%m-%d %I:%M %p')
             
             
@@ -170,24 +170,22 @@ class LegendsParser:
                 money2 = 1
             
             spread_odds2 = tds2[2]('a')[0].contents[0]
-            spread2 = spread_odds2.split(' ')[0].replace(u'½', '.5')
+            spread2 = float(spread_odds2.split(' ')[0].replace(u'½', '.5'))
             total2 = tds2[3]('a')[0].contents[0].replace(u'½', '.5')
             
             
                         
             line1 = basics.BasicLine('Legends', sport, league, 'full overtime', 'spread', 
                                      team1, team2, team1_number, team2_number, odds, 
-                                     'over', spread1, overunder, 1000.0, 0.5, 
-                                     0, date.strftime('%Y-%m-%d'), date.strftime('%I:%M %p')) 
+                                     team1, spread1, overunder, 1000.0, 0.5, 
+                                     0, date.strftime('%d-%m-%y'), date.strftime('%I:%M %p')) 
             
-            
-            line2 = basics.BasicLine('Legends', sport, league, 'full overtime', 'overunder', 
+            line2 = basics.BasicLine('Legends', sport, league, 'full overtime', 'spread', 
                                      team1, team2, team1_number, team2_number, odds, 
-                                     'over', spread1, overunder, 1000.0, 0.5, 
-                                     0, date.strftime('%Y-%m-%d'), date.strftime('%I:%M %p')) 
+                                     team2, spread2, overunder, 1000.0, 0.5, 
+                                     0, date.strftime('%d-%m-%y'), date.strftime('%I:%M %p')) 
                         
             all_lines.extend([line1, line2])
-            
             return all_lines
 
 
@@ -197,6 +195,6 @@ if __name__ == '__main__':
     legends = LegendsParser()
     legends.login()
     
-    for lines in legends.get_lines('basketball'):
+    for lines in legends.get_lines('baseball'):
         print lines
     
