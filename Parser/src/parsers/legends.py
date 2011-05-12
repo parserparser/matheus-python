@@ -140,18 +140,16 @@ class LegendsParser:
             
             
             # Getting frist team
-            
             tds1 = trs[i+1]('td')
             team1 =  tds1[0].contents[0].split('. ')[1]
             team1_number = tds1[0].contents[0].split('. ')[0]
-            
             money1 = tds1[1]('a')[0].contents[0].strip()
-            
+
             spread_odds1 = tds1[2]('a')[0].contents[0].strip()
             
             
-            total1 = tds1[3]('a')[0].contents[0].replace(u'½', '.5')
-            overunder = float(total1.split()[1])
+            total1 = tds1[3]('a')[0].contents[0].replace(u'½', '.5').replace('  ', ' ').strip()
+            
             
             
             # Getting second team
@@ -168,43 +166,91 @@ class LegendsParser:
             
             #spread2 = float(spread2.replace(u'½', '.5'))
             
-            total2 = tds2[3]('a')[0].contents[0].replace(u'½', '.5')
+            total2 = tds2[3]('a')[0].contents[0].replace(u'½', '.5').replace('  ',' ').strip()
             
             #print money1
             #print money2
             if (money1 != '') and (money2 != ''):
+                
+                side1 = team1_number
+                side2 = team2_number
+                
                 money1 = equity.to_decimal(int(money1))
                 money2 = equity.to_decimal(int(money2))
                 
                 line1 = basics.BasicLine('Legends', sport, league.split('-')[1], 'full overtime', 'moneyline', 
                                      team1, team2, team1_number, team2_number, money1, 
-                                     team1_number, 0.0, 0.0, 1000.0, 5.0, 0.0, 
+                                     side1, 0.0, 0.0, 1000.0, 5.0, 0.0, 
                                     date.strftime('%d-%m-%y'), date.strftime('%I:%M %p'))
                 
                 line2 = basics.BasicLine('Legends', sport, league.split('-')[1], 'full overtime', 'moneyline', 
                                      team1, team2, team1_number, team2_number, money2, 
-                                     team2_number, 0.0, 0.0, 1000.0, 5.0, 0.0, 
+                                     side2, 0.0, 0.0, 1000.0, 5.0, 0.0, 
                                     date.strftime('%d-%m-%y'), date.strftime('%I:%M %p')) 
                 all_lines.extend([line1, line2])
             
             
             if(spread_odds1 != '') and (spread_odds2 != ''):
+                
+                side1 = team1_number
+                side2 = team2_number
+                
                 spread1 = float(spread_odds1.split(' ')[0].replace(u'½', '.5'))
                 spread2 = float(spread_odds2.split(' ')[0].replace(u'½', '.5'))
                 
-                odds1 = equity.to_decimal(int(spread_odds1.split(' ')[1]))
-                odds2 = equity.to_decimal(int(spread_odds2.split(' ')[1]))
+                odds1 = spread_odds1.split(' ')[1]
+                if odds1 == 'Even':
+                    odds1 = 110
+                odds1 = equity.to_decimal(int(odds1))
+                
+                odds2 = spread_odds2.split(' ')[1]
+                if odds2 == 'Even':
+                    odds2 = 110
+                odds2 = equity.to_decimal(int(odds2))
+                
+                line1 = basics.BasicLine('Legends', sport, league.split('-')[1], 'full overtime', 'spread', 
+                                     team1, team2, team1_number, team2_number, odds1, 
+                                     team1_number, spread1, 0.0, 1000.0, 5.0, 0.0, 
+                                    date.strftime('%d-%m-%y'), date.strftime('%I:%M %p'))
+                line2 = basics.BasicLine('Legends', sport, league.split('-')[1], 'full overtime', 'spread', 
+                                     team1, team2, team1_number, team2_number, odds2, 
+                                     team2_number, spread2, 0.0, 1000.0, 5.0, 0.0, 
+                                    date.strftime('%d-%m-%y'), date.strftime('%I:%M %p'))
+                all_lines.extend([line1, line2])
+            
+            if (total1 != '') and (total2 != ''):
+                side1 = 'over'
+                side2 = 'under'
+                
+                print total1
+                print total2
+                
+                overunder1 = float(total1.split(' ')[1])
+                overunder2 = float(total2.split(' ')[1])
+                
+                odds1 = total1.split(' ')[2]
+                if odds1 == 'Even':
+                    odds1 = 110
+                odds1 = equity.to_decimal(int(odds1))
+                
+                odd2 = total2.split(' ')[2]
+                if odds2 == 'Even':
+                    odds2 = 110
+                odds2 = equity.to_decimal(int(odds2))
+                
+                print odds1
+                print odds2
                 
                 line1 = basics.BasicLine('Legends', sport, league.split('-')[1], 'full overtime', 'spread', 
                                      team1, team2, team1_number, team2_number, 0.0, 
-                                     team1_number, odds1, 0.0, 1000.0, 5.0, 0.0, 
+                                     side1, odds1, overunder1, 1000.0, 5.0, 0.0, 
                                     date.strftime('%d-%m-%y'), date.strftime('%I:%M %p'))
                 line2 = basics.BasicLine('Legends', sport, league.split('-')[1], 'full overtime', 'spread', 
                                      team1, team2, team1_number, team2_number, 0.0, 
-                                     team2_number, odds2, 0.0, 1000.0, 5.0, 0.0, 
+                                     side2, odds2, overunder2, 1000.0, 5.0, 0.0, 
                                     date.strftime('%d-%m-%y'), date.strftime('%I:%M %p'))
                 all_lines.extend([line1, line2])
-                
+            
             return all_lines
 
 
