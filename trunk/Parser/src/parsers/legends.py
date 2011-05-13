@@ -20,16 +20,24 @@ import util.equity as equity
 
 sports = {
         'basketball':{
-            'NBA':'https://www.secureserver365.com/BOSSWagering/Sportsbook/InternetWagering2010-03a2/IBLines/Lines8.asp?SPORTTYPES=2&DUMMY=10&SSC=3940',
-            'NCAA':'https://www.secureserver365.com/BOSSWagering/Sportsbook/InternetWagering2010-03a2/IBLines/Lines8.asp?SPORTTYPES=2&DUMMY=10&SSC=3940'
+            'nba':'https://www.secureserver365.com/BOSSWagering/Sportsbook/InternetWagering2010-03a2/IBLines/Lines8.asp?SPORTTYPES=2&DUMMY=10&SSC=3940',
+            'nba - playoffs':'https://www.secureserver365.com/BOSSWagering/Sportsbook/InternetWagering2010-03a2/IBLines/Lines8.asp?SPORTTYPES=2&DUMMY=10&SSC=3940',
+            'ncaa':'https://www.secureserver365.com/BOSSWagering/Sportsbook/InternetWagering2010-03a2/IBLines/Lines8.asp?SPORTTYPES=2&DUMMY=10&SSC=3940',
         },
         'baseball':{
-            'MLB - National League':'https://www.secureserver365.com/BOSSWagering/Sportsbook/InternetWagering2010-03a2/IBLines/Lines8.asp?SPORTTYPES=15&DUMMY=10&SSC=3940',
-            'MLB - American League':'https://www.secureserver365.com/BOSSWagering/Sportsbook/InternetWagering2010-03a2/IBLines/Lines8.asp?SPORTTYPES=15&DUMMY=10&SSC=3940'
+            'mlb':'https://www.secureserver365.com/BOSSWagering/Sportsbook/InternetWagering2010-03a2/IBLines/Lines8.asp?SPORTTYPES=15&DUMMY=10&SSC=3940',
+            'mb - national league':'https://www.secureserver365.com/BOSSWagering/Sportsbook/InternetWagering2010-03a2/IBLines/Lines8.asp?SPORTTYPES=15&DUMMY=10&SSC=3940',
+            'mlb - american league':'https://www.secureserver365.com/BOSSWagering/Sportsbook/InternetWagering2010-03a2/IBLines/Lines8.asp?SPORTTYPES=15&DUMMY=10&SSC=3940',
+        },
+        'golf':{
+            'Golf - Daily Matchup - The Players  Championship Matchups':'https://www.secureserver365.com/BOSSWagering/Sportsbook/InternetWagering2010-03a2/IBLines/Lines8.asp?SPORTTYPES=7&DUMMY=10&SSC=3940',
         }
 }
 
-
+league_names = {'nba':'nba', 'nba - playoffs':'nba', 'ncaa':'ncaa',
+                'mlb':'mlb', 'mlb - national league':'mlb', 'mlb - american league':'mlb',
+                'Golf - Daily Matchup - The Players  Championship Matchups':'golf',
+                }
 
 
 class LegendsParser:
@@ -143,13 +151,21 @@ class LegendsParser:
             tds1 = trs[i+1]('td')
             team1 =  tds1[0].contents[0].split('. ')[1]
             team1_number = tds1[0].contents[0].split('. ')[0]
-            money1 = tds1[1]('a')[0].contents[0].strip()
-
-            spread_odds1 = tds1[2]('a')[0].contents[0].strip()
             
+            try:
+                money1 = tds1[1]('a')[0].contents[0].strip()
+            except:
+                money1 = None
             
-            total1 = tds1[3]('a')[0].contents[0].replace(u'½', '.5').replace('  ', ' ').strip()
+            try:
+                spread_odds1 = tds1[2]('a')[0].contents[0].strip()
+            except:
+                spread_odds1 = None
             
+            try:
+                total1 = tds1[3]('a')[0].contents[0].replace(u'½', '.5').replace('  ', ' ').strip()
+            except:
+                total1 = None
             
             
             # Getting second team
@@ -158,60 +174,56 @@ class LegendsParser:
             team2 =  tds2[0].contents[0].split('. ')[1]
             team2_number = tds2[0].contents[0].split('. ')[0]
             
-            money2 = tds2[1]('a')[0].contents[0].strip()
+            try:
+                money2 = tds2[1]('a')[0].contents[0].strip()
+            except:
+                money2 = None
             
+            try:
+                spread_odds2 = tds2[2]('a')[0].contents[0].strip()
+            except:
+                spread_odds2 = None
             
-            spread_odds2 = tds2[2]('a')[0].contents[0].strip()
-            
-            
-            #spread2 = float(spread2.replace(u'½', '.5'))
-            
-            total2 = tds2[3]('a')[0].contents[0].replace(u'½', '.5').replace('  ',' ').strip()
-            
+            try:
+                total2 = tds2[3]('a')[0].contents[0].replace(u'½', '.5').replace('  ',' ').strip()
+            except:
+                total2 = None
             
             side1, side2 = team1_number, team2_number
-            odds1 = odds2 = 0.0
-            spread1, spread2 = 0.0, 0.0
-            overunder1, overunder2 = 0.0, 0.0
-            min_bet, max_bet = 5.0, 100.0
-            comission = 0.0
+            league_name = league_names[league]
             
-            if (money1 != '') and (money2 != ''):
+            # Getting the lines
+            
+            if money1 and money2:
                 
                 spread1, spread2 = 0.0, 0.0
                 overunder1, overunder2 = 0.0, 0.0
                 min_bet, max_bet = 5.0, 100.0
                 comission = 0.0
                 
-                side1 = team1_number
-                side2 = team2_number
-                
                 odds1 = equity.to_decimal(int(money1))
                 odds2 = equity.to_decimal(int(money2))
                 
                 
                 
-                line1 = basics.BasicLine('Legends', sport, league.split('-')[1], 'full overtime', 'moneyline', 
+                line1 = basics.BasicLine('Legends', sport, league_name, 'full overtime', 'moneyline', 
                                      team1, team2, team1_number, team2_number, odds1, 
-                                     side1, 0.0, 0.0, max_bet, min_bet, comission, 
+                                     side1, spread1, overunder1, max_bet, min_bet, comission, 
                                     date.strftime('%d-%m-%y'), date.strftime('%I:%M %p'))
                 
-                line2 = basics.BasicLine('Legends', sport, league.split('-')[1], 'full overtime', 'moneyline', 
+                line2 = basics.BasicLine('Legends', sport, league_name, 'full overtime', 'moneyline', 
                                      team1, team2, team1_number, team2_number, odds2, 
-                                     side2, 0.0, 0.0, 1000.0, 5.0, 0.0, 
+                                     side2, spread1, overunder1, max_bet, min_bet, comission,
                                     date.strftime('%d-%m-%y'), date.strftime('%I:%M %p')) 
                 all_lines.extend([line1, line2])
             
             
             
-            if(spread_odds1 != '') and (spread_odds2 != ''):
+            if spread_odds1 and spread_odds2:
                 
                 overunder1, overunder2 = 0.0, 0.0
                 min_bet, max_bet = 5.0, 100.0
                 comission = 0.0
-                
-                side1 = team1_number
-                side2 = team2_number
                 
                 spread1 = float(spread_odds1.split(' ')[0].replace(u'½', '.5'))
                 spread2 = float(spread_odds2.split(' ')[0].replace(u'½', '.5'))
@@ -228,17 +240,18 @@ class LegendsParser:
                 
                 
                 
-                line1 = basics.BasicLine('Legends', sport, league.split('-')[1], 'full overtime', 'spread', 
+                line1 = basics.BasicLine('Legends', sport, league_name, 'full overtime', 'spread', 
                                      team1, team2, team1_number, team2_number, odds1, 
-                                     team1_number, spread1, overunder1, max_bet, min_bet, comission, 
+                                     side1, spread1, overunder1, max_bet, min_bet, comission, 
                                     date.strftime('%d-%m-%y'), date.strftime('%I:%M %p'))
-                line2 = basics.BasicLine('Legends', sport, league.split('-')[1], 'full overtime', 'spread', 
+                
+                line2 = basics.BasicLine('Legends', sport, league_name, 'full overtime', 'spread', 
                                      team1, team2, team1_number, team2_number, odds2, 
-                                     team2_number, spread2, overunder2, max_bet, min_bet, comission, 
+                                     side2, spread2, overunder2, max_bet, min_bet, comission, 
                                     date.strftime('%d-%m-%y'), date.strftime('%I:%M %p'))
                 all_lines.extend([line1, line2])
             
-            if (total1 != '') and (total2 != ''):
+            if total1 and total2:
                 
                 spread1, spread2 = 0.0, 0.0
                 min_bet, max_bet = 5.0, 100.0
@@ -247,10 +260,7 @@ class LegendsParser:
                 side1 = 'over'
                 side2 = 'under'
                 
-                print total1
-                print total2
-                
-                overunder1 = float(total1.split(' ')[1])
+                overunder1 = float(total1.split(' ')[1])    
                 overunder2 = float(total2.split(' ')[1])
                 
                 odds1 = total1.split(' ')[2]
@@ -258,25 +268,23 @@ class LegendsParser:
                     odds1 = 110
                 odds1 = equity.to_decimal(int(odds1))
                 
-                odd2 = total2.split(' ')[2]
+                odds2 = total2.split(' ')[2]
                 if odds2 == 'Even':
                     odds2 = 110
                 odds2 = equity.to_decimal(int(odds2))
                 
-                print odds1
-                print odds2
-                
-                line1 = basics.BasicLine('Legends', sport, league.split('-')[1], 'full overtime', 'spread', 
-                                     team1, team2, team1_number, team2_number, 0.0, 
-                                     side1, odds1, overunder1, 1000.0, 5.0, 0.0, 
+                line1 = basics.BasicLine('Legends', sport, league_name, 'full overtime', 'overunder', 
+                                     team1, team2, team1_number, team2_number, odds1, 
+                                     side1, spread1, overunder1, max_bet, min_bet, comission, 
                                     date.strftime('%d-%m-%y'), date.strftime('%I:%M %p'))
-                line2 = basics.BasicLine('Legends', sport, league.split('-')[1], 'full overtime', 'spread', 
-                                     team1, team2, team1_number, team2_number, 0.0, 
-                                     side2, odds2, overunder2, 1000.0, 5.0, 0.0, 
+                
+                line2 = basics.BasicLine('Legends', sport, league_name, 'full overtime', 'overunder', 
+                                     team1, team2, team1_number, team2_number, odds2, 
+                                     side2, spread2, overunder2, max_bet, min_bet, comission, 
                                     date.strftime('%d-%m-%y'), date.strftime('%I:%M %p'))
                 all_lines.extend([line1, line2])
             
-            return all_lines
+        return all_lines
 
 
 
@@ -285,6 +293,6 @@ if __name__ == '__main__':
     legends = LegendsParser()
     legends.login()
     
-    for lines in legends.get_lines('baseball'):
+    for lines in legends.get_lines('golf'):
         print lines
     
