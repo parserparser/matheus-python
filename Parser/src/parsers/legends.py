@@ -17,7 +17,6 @@ from util import basics, parser_exception
 import util.equity as equity
 
 
-
 sports = {
         'basketball':{
             'nba':'https://www.secureserver365.com/BOSSWagering/Sportsbook/InternetWagering2010-03a2/IBLines/Lines8.asp?SPORTTYPES=2&DUMMY=10&SSC=3940',
@@ -233,13 +232,13 @@ class LegendsParser:
                 spread2 = float(spread_odds2.split(' ')[0].replace(u'½', '.5'))
                 
                 odds1 = spread_odds1.split(' ')[1]
-                if odds1 == 'Even':
-                    odds1 = 110
+                if odds1.upper() == 'EVEN':
+                    odds1 = 100
                 odds1 = equity.to_decimal(int(odds1))
                 
                 odds2 = spread_odds2.split(' ')[1]
-                if odds2 == 'Even':
-                    odds2 = 110
+                if odds2.upper() == 'EVEN':
+                    odds2 = 100
                 odds2 = equity.to_decimal(int(odds2))
                 
                 
