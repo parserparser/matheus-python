@@ -201,10 +201,14 @@ class LegendsParser:
                 min_bet, max_bet = 5.0, 100.0
                 comission = 0.0
                 
-                odds1 = equity.to_decimal(int(money1))
-                odds2 = equity.to_decimal(int(money2))
-                
-                
+                if money1.upper() == 'EVEN':
+                    odds1 = equity.to_decimal(100)
+                else:
+                    odds1 = equity.to_decimal(int(money1))
+                if money2.upper() == 'EVEN':
+                    odds1 = equity.to_decimal(100)
+                else:
+                    odds2 = equity.to_decimal(int(money2))
                 
                 line1 = basics.BasicLine('Legends', sport, league_name, 'full overtime', 'moneyline', 
                                      team1, team2, team1_number, team2_number, odds1, 
